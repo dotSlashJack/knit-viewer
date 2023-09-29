@@ -1,0 +1,8 @@
+knit_view_env
+knit_view_env/*
+dat-viewer.html
+.vscode
+output.dat
+stst_10.dat.png
+*.dat
+output.png
