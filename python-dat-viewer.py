@@ -5,7 +5,7 @@ by Jack Hester
 """
 from PIL import Image
 
-def byte_swap(arr):
+def byte_swap(arr): # TODO: put this in a shared file because grid generator uses
     ret = bytearray(len(arr))
     for i in range(0, len(arr), 2):
         ret[i] = arr[i+1]
@@ -44,10 +44,13 @@ def decode_dat_to_image(file_path):
 
         file.seek(0x200) # seek to beginning of colors
         # byteswap is used to convert from little endian to big endian for each r g b value
-        # swap red bytes
         red_values = byte_swap(file.read(0x100))
         green_values = byte_swap(file.read(0x100))
         blue_values = byte_swap(file.read(0x100))
+
+        #red_values = file.read(0x100)
+        #green_values = file.read(0x100)
+        #blue_values =file.read(0x100)
 
         #colors.reverse()
         #print(colors)
@@ -63,7 +66,7 @@ def decode_dat_to_image(file_path):
             repeat_count = read_byte(file, offset + 1)
             
             for _ in range(repeat_count):
-                pixels[x, height - 1 - y] = (red_values[color_index], green_values[color_index], blue_values[color_index])#colors[color_index]# adjust y index to start from the bottom so it's a little less weird to think about
+                pixels[x, height - 1 - y] = (red_values[color_index], green_values[color_index], blue_values[color_index])# adjust y index to start from the bottom so it's a little less weird to think about
                 x += 1
                 if x >= width:
                     x = 0
@@ -78,4 +81,4 @@ def decode_dat_to_image(file_path):
 
 # main
 if __name__ == '__main__':
-    decode_dat_to_image('stst_10.dat')
+    decode_dat_to_image('test02.dat')

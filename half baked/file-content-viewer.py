@@ -39,6 +39,14 @@ def parse_dat(file_path):
         paletteR = byte_swap(paletteR)
         paletteG = byte_swap(paletteG)
         paletteB = byte_swap(paletteB)
+
+        print("Palette:")
+        print(paletteR)
+        print()
+        print(paletteG)
+        print()
+        print(paletteB)
+        print("---")
         
         # go through the palette and convert the RGB values to hex
         palette = []
