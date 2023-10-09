@@ -3,24 +3,9 @@ import colors
 
 color_list = colors.color_list
 
-def byte_swap(arr): # TODO: put this in a shared file because grid generator uses
-    ret = bytearray(len(arr))
-    for i in range(0, len(arr), 2):
-        ret[i] = arr[i+1]
-        ret[i+1] = arr[i]
-    return ret
-
-def convert_byte_to_little_endian(value: int) -> bytearray:
-    return value.to_bytes(1, byteorder='little')
-
-
-def convert_short_to_little_endian(value: int) -> bytearray:
-    return value.to_bytes(2, byteorder='little')
-
-
-def generate_dat_from_color_indices(color_indices: list, output_file_path: str):
+def generate_dat_from_color_indices(color_indices: list, output_file_path: str) -> None:
     """
-    Generates a .dat file from a list of color indices where each index represents the index of that color in the r/g/b lists.
+    Generates and save a .dat file from a list of color indices where each index represents the index of that color in the r/g/b lists.
 
     :param color_indices: A list of lists color indices in the format where each list corresponds to a row with the first being the bottom row of the dat canvas.
     :param output_file_path: The path to the output file, ending in .dat.
@@ -36,31 +21,28 @@ def generate_dat_from_color_indices(color_indices: list, output_file_path: str):
     with open(output_file_path, 'wb') as output_file:
         # write header with width at 0x004, height at 0x006, and 1000 (magic #) at 0x008 and 0x010
         output_file.seek(0x004)
-        output_file.write(convert_short_to_little_endian(dat_width))
+        output_file.write(dat_width.to_bytes(2, byteorder='little'))
         output_file.seek(0x006)
-        output_file.write(convert_short_to_little_endian(dat_height))
+        output_file.write(dat_height.to_bytes(2, byteorder='little'))
         output_file.seek(0x008)
-        output_file.write(convert_short_to_little_endian(1000))
+        output_file.write((1000).to_bytes(2, byteorder='little'))
         output_file.seek(0x010)
-        output_file.write(convert_short_to_little_endian(1000))
+        output_file.write((1000).to_bytes(2, byteorder='little'))
 
         # write color chunk
         output_file.seek(0x200)
-        output_file.write(byte_swap(colors.red_color_bytes))
+        output_file.write(colors.red_color_bytes)
         
         output_file.seek(0x300)
-        output_file.write(byte_swap(colors.green_color_bytes))
+        output_file.write(colors.green_color_bytes)
 
         output_file.seek(0x400)
-        output_file.write(byte_swap(colors.blue_color_bytes))
-        
+        output_file.write(colors.blue_color_bytes)
 
-        #output_file.seek(0x200)
-        #for chunk in reversed(colors.hex_chunks):
-        #    # Convert the hex chunk to bytes and write to the file
-        #    output_file.write(bytes.fromhex(chunk))
+        # write RLE encoded data (color index from rgb part of color chunk, then number of repeats)
+        output_file.seek(0x600)
+        repeats = 0
 
-        # write RLE encoded data
         output_file.seek(0x600)
         repeats = 0
 
@@ -69,10 +51,11 @@ def generate_dat_from_color_indices(color_indices: list, output_file_path: str):
             for x in range(dat_width + 1):
                 repeats += 1
                 if x == dat_width or row[x] != row[x+1]:
-                    output_file.write(convert_byte_to_little_endian(row[x]))
-                    output_file.write(convert_byte_to_little_endian(repeats))
+                    output_file.write(row[x].to_bytes())
+                    output_file.write(repeats.to_bytes())
                     repeats = 0
-                    
+    
+    output_file.close()
 
 
 def find_matching_color_index(pixel_rgb: list) -> int:
@@ -90,7 +73,7 @@ def find_matching_color_index(pixel_rgb: list) -> int:
         return -1
 
 
-def find_matching_pixels(image_path):
+def find_matching_pixels(image_path: str) -> list:
     """
     Gets the indices in the color list of each pixel (e.g., ith element of red, green, and blue chunks of color info in .dat file).
 
@@ -123,4 +106,3 @@ if __name__ == "__main__":
     image_path = "stst_10.dat.png"
     matching_pixels = find_matching_pixels(image_path)
     generate_dat_from_color_indices(matching_pixels, "test02.dat")
-    #print(matching_pixels)
