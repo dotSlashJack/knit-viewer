@@ -1,7 +1,7 @@
+"""Generate a grid (list of lists) of color indices from a .dat image or png"""
+
 from PIL import Image
 import colors
-
-color_list = colors.color_list
 
 def generate_dat_from_color_indices(color_indices: list, output_file_path: str) -> None:
     """
@@ -11,7 +11,7 @@ def generate_dat_from_color_indices(color_indices: list, output_file_path: str) 
     :param output_file_path: The path to the output file, ending in .dat.
     """
 
-    #0,0 is bottom left corner pixel of raster thus why decremented
+    #0,0 is bottom left corner pixel of raster thus why decremented to start at 0 index
     dat_width = len(color_indices[0]) - 1
     print(f'dat_width: {dat_width}')
     dat_height = len(color_indices) - 1
@@ -43,14 +43,11 @@ def generate_dat_from_color_indices(color_indices: list, output_file_path: str) 
         output_file.seek(0x600)
         repeats = 0
 
-        output_file.seek(0x600)
-        repeats = 0
-
         for y in range(dat_height, -1, -1):
             row = color_indices[y]
             for x in range(dat_width + 1):
                 repeats += 1
-                if x == dat_width or row[x] != row[x+1]:
+                if x == dat_width or row[x] != row[x+1]: # if end of row or next color is different, write out
                     output_file.write(row[x].to_bytes())
                     output_file.write(repeats.to_bytes())
                     repeats = 0
@@ -66,7 +63,7 @@ def find_matching_color_index(pixel_rgb: list) -> int:
     :return: The index of the RGB value in the color list, or -1 if not found.
     """
     try:
-        index = color_list.index(pixel_rgb)
+        index = colors.color_list.index(pixel_rgb)
         #print(f"Color: {pixel_rgb} -> Index: {index}")  # Debugging line
         return index
     except ValueError:
@@ -86,8 +83,8 @@ def find_matching_pixels(image_path: str) -> list:
     print(f'width: {width}, height: {height}')
     matching_pixel_grid = []
 
+    # generate grid of color indices that match grid of image pixels
     # each row is a list of pixel colors going across
-
     for y in range(height):
         row_color_indices = []
         for x in range(width):
