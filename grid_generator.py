@@ -48,8 +48,8 @@ def generate_dat_from_color_indices(color_indices: list, output_file_path: str) 
             for x in range(dat_width + 1):
                 repeats += 1
                 if x == dat_width or row[x] != row[x+1]: # if end of row or next color is different, write out
-                    output_file.write(row[x].to_bytes())
-                    output_file.write(repeats.to_bytes())
+                    output_file.write(row[x].to_bytes(1,byteorder='little'))
+                    output_file.write(repeats.to_bytes(1,byteorder='little'))
                     repeats = 0
     
     output_file.close()
