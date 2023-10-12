@@ -98,8 +98,28 @@ def find_matching_pixels(image_path: str) -> list:
 
     return matching_pixel_grid
 
+def generate_image_from_pixel_list(pixel_list: list, output_file_path: str) -> None:
+    """
+    Generates and save a .png file from a list of pixels where each pixel is a list of RGB values, starting from the bottom row and moving up.
+
+    :param pixel_list: A list of lists of indices where the RGB values live in the color list, where each sublist corresponds to a row with the first being the bottom row of the image.
+    :param output_file_path: The path to the output file ending in .png.
+    """
+    
+    width = len(pixel_list[0])
+    height = len(pixel_list)
+
+    img = Image.new('RGB', (width, height))
+    for y in range(height):
+        for x in range(width): # x is the index of the pixel in the row, not the color index
+            color_index = pixel_list[y][x]
+            img.putpixel((x, y), colors.color_list[color_index])
+
+    img.save(output_file_path)
+
 
 if __name__ == "__main__":
     image_path = "stst_10.dat.png"
     matching_pixels = find_matching_pixels(image_path)
+    generate_image_from_pixel_list(matching_pixels, "test03.png")
     generate_dat_from_color_indices(matching_pixels, "test02.dat")
