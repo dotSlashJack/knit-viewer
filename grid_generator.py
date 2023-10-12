@@ -78,7 +78,7 @@ def find_matching_pixels(image_path: str) -> list:
     :param rgb_values_set: A set of RGB values to search for.
     :return: A list of pixel coordinates (x, y) that match the RGB values.
     """
-    img = img = Image.open(image_path).convert('RGB')
+    img = Image.open(image_path).convert('RGB')
     width, height = img.size
     print(f'width: {width}, height: {height}')
     matching_pixel_grid = []
